@@ -1,6 +1,7 @@
 import customtkinter
 from classes_help_window import WindowForFastSearchOrgan, WindowForFastSearch
 import tkinter
+from tkinter import messagebox
 
 frame_default_color = "#F5DEB3"
 
@@ -25,6 +26,10 @@ class SimpleEntry(customtkinter.CTkFrame):
             result_checkout = self.validation_name()
             if result_checkout == True:
                 return self.ent.get().title()
+            else:
+                messagebox.showerror(title="Ошибка", message="Неверно введено имя или отчество")
+        else:
+            return self.ent.get().title()
 
     def validation_name(self):
         pass
@@ -37,9 +42,8 @@ class SimpleEntry(customtkinter.CTkFrame):
         # else:
         #     return True
 
-
-
-
+    def clean_en(self):
+        self.ent.delete(first_index=0, last_index=50)
 
 
 class SeriesNumberDocument(customtkinter.CTkFrame):
@@ -47,14 +51,14 @@ class SeriesNumberDocument(customtkinter.CTkFrame):
                  master: any):
         super().__init__(master=master, fg_color=frame_default_color)
 
-        ser_lab = customtkinter.CTkLabel(self, text="Cерия")
-        ser_lab.grid(row=0, column=0, sticky="w")
+        self.ser_lab = customtkinter.CTkLabel(self, text="Cерия")
+        self.ser_lab.grid(row=0, column=0, sticky="w")
 
         self.ser_lab_en = customtkinter.CTkComboBox(self, values=["ab", "mc"], width=58)
         self.ser_lab_en.grid(row=1, column=0, sticky="w")
 
-        num_doc = customtkinter.CTkLabel(self, text="Номер")
-        num_doc.grid(row=0 ,column=1, padx=3, sticky="w")
+        self.num_doc = customtkinter.CTkLabel(self, text="Номер")
+        self.num_doc.grid(row=0 ,column=1, padx=3, sticky="w")
 
         self.num_doc_en = customtkinter.CTkEntry(self, width=80)
         self.num_doc_en.grid(row=1, column=1, padx=3, sticky="w")
@@ -64,6 +68,15 @@ class SeriesNumberDocument(customtkinter.CTkFrame):
 
         self.time_reliz_day_en = customtkinter.CTkEntry(self, width=90)
         self.time_reliz_day_en.grid(row=1, column=2, padx=3, sticky="w")
+
+    def get_value(self):
+        data_list = []
+        data_list.append(self.ser_lab_en.get())
+        data_list.append(self.num_doc_en.get())
+        return data_list
+
+    def clean_en(self):
+        self.num_doc_en.delete(first_index=0, last_index=15)
 
 
 class PersonalNumberDocument(customtkinter.CTkFrame):

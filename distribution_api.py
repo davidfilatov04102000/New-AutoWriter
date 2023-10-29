@@ -2,7 +2,7 @@ from connection_with_data_base import ConnectWithDataBase
 from fuzzywuzzy import fuzz
 import pprint
 
-class DistributionDefaultInfo:
+class SearchTownForDefaultInfo:
     def __init__(self, name_town):
         self.name_town = name_town.title()
         self.obj_connect = ConnectWithDataBase()
@@ -47,7 +47,7 @@ class DistributionDefaultInfo:
         return self.list_sort_tuple
 
 
-# raw = DistributionDefaultInfo(name_town="кожан-городок")
-# qwe = raw.return_found_cities()
-# pprint.pprint(qwe)
+
+
+
 

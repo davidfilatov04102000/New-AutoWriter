@@ -2,8 +2,6 @@ import customtkinter
 # from classes_help_window import WindowForFastSearchOrgan
 
 
-
-
 def show_two_value_in_cycle(arg1, arg2):
     for vfr, bgt in zip(arg1, arg2):
         print(vfr, bgt, sep="   ---   ")

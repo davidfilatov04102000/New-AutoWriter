@@ -1,6 +1,6 @@
 import customtkinter
 from all_classes import TileWithResultSearch, CustomButton1, ButtonReferenceMod
-from distribution_api import DistributionDefaultInfo
+from distribution_api import SearchTownForDefaultInfo
 import time
 
 
@@ -147,7 +147,7 @@ class WindowForSearchTown(WindowForSearchCase):
     def event_button_search(self):
         start = time.time()
         self.get_from_entry = self.entry_for_search.get()
-        self.obj_distributor = DistributionDefaultInfo(self.get_from_entry)
+        self.obj_distributor = SearchTownForDefaultInfo(self.get_from_entry)
         self.list_results_search = self.obj_distributor.return_found_cities()
 
         iu = -1
