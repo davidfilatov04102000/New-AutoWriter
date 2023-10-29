@@ -1,6 +1,5 @@
 import customtkinter
-import all_classes
-from all_classes import CustomButton1, ButtonReferenceMod
+from all_classes import TileWithResultSearch, CustomButton1, ButtonReferenceMod
 from distribution_api import DistributionDefaultInfo
 import time
 
@@ -34,11 +33,30 @@ class WindowForFastSearch(ParentHelpWindow):
     def __init__(self,
                  name_win: str,
                  button_text: str,
+                 button_text2: str,
                  button_event=None):
         super().__init__(name_win=name_win, height_main_frame=495)
+
+        # Создание лейбла подписи для текстового поля
+        self.label_for_text_entry = customtkinter.CTkLabel(self.frame_for_tool_bar, font=("Arial Bold", 14),
+                                                           text="Поиск")
+        self.label_for_text_entry.grid(row=0, column=1, padx=15, sticky="sw")
+
         self.button_ok = customtkinter.CTkButton(self.frame_for_tool_bar, text=button_text,
-                                                 width=80, fg_color="green", command=button_event)
-        self.button_ok.grid(row=0, column=0, padx=25, pady=10, sticky="w")
+                                                 width=60, fg_color="green", command=button_event)
+        self.button_ok.grid(row=1, column=0, padx=15, pady=(5, 5), sticky="w")
+
+        # Создание поля для ввода текста
+        self.entry_for_search = customtkinter.CTkEntry(self.frame_for_tool_bar, width=320, corner_radius=8,
+                                                       placeholder_text="Введите название")
+        self.entry_for_search.grid(row=1, column=1, padx=10, pady=(5, 5), columnspan=3)
+
+        # Создание кнопки для поиска
+        self.button_for_search = customtkinter.CTkButton(self.frame_for_tool_bar, text=button_text2, width=60,
+                                                         fg_color="green", command=button_event)
+        self.button_for_search.grid(row=1, column=4, padx=10, pady=(5, 5))
+
+
 
 
 # ert1 = WindowForFastSearch("Быстрый поиск", "выбрать")
@@ -136,7 +154,7 @@ class WindowForSearchTown(WindowForSearchCase):
         for sl in self.list_results_search:
             iu += 1
             self.full_text = sl[0] + ", " + sl[1] + ", " + sl[2]
-            self.tile = all_classes.TileWithResultSearch(self.frame_main_job_field, self.full_text)
+            self.tile = TileWithResultSearch(self.frame_main_job_field, self.full_text)
             self.tile.grid(row=iu, column=0, padx=10, pady=5, sticky="we", columnspan=2)
         finish = time.time() - start
         print(finish)
@@ -148,7 +166,6 @@ class WindowForSearchTown(WindowForSearchCase):
 #                            "Поиск", button_text2="Вы можете корректировать название",
 #                            button_text3="Вы можете добавить населенный пункт")
 # ert3.mainloop()
-
 
 class CreateWorkerWindow(customtkinter.CTk):
     """Класс окна для регистрации нового сотрудника"""

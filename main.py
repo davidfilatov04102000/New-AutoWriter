@@ -2,6 +2,7 @@ import customtkinter
 from all_classes import ButtonReferenceMod
 from classes_help_window import WindowForFastSearch, WindowForSearchCase, WindowForSearchTown, CreateWorkerWindow, \
     WindowForAddNewOrgan, WindowAddNewTown, WindowForTranslateNameTown, WindowAboutThis, WindowForFastSearchOrgan
+import classes_window_modul
 
 
 class App(customtkinter.CTk):
@@ -73,7 +74,8 @@ class App(customtkinter.CTk):
         #КНОПКИ
 
         # Создаем кнопки ссылки на модули
-        btn1 = ButtonReferenceMod(self.frame_for_button_module, "Заявление Все свои", 1)
+        btn1 = ButtonReferenceMod(self.frame_for_button_module, "Заявление Все свои", 1,
+                                  button_command=self.open_modul_change_tariff)
         btn2 = ButtonReferenceMod(self.frame_for_button_module, "Подключение Твин-Карты", 2)
         btn3 = ButtonReferenceMod(self.frame_for_button_module, "Ошибочная оплата", 3)
         btn4 = ButtonReferenceMod(self.frame_for_button_module, "Смена владельца", 4)
@@ -127,6 +129,10 @@ class App(customtkinter.CTk):
     def call_window_about_this_program(self):
         window_about_this_program = WindowAboutThis(name_win="О программе")
         window_about_this_program.mainloop()
+
+    def open_modul_change_tariff(self):
+        obj_window_for_change_window = classes_window_modul.WindowForChangeTariff()
+        obj_window_for_change_window.mainloop()
 
 
 

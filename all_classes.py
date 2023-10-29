@@ -1,4 +1,8 @@
 import customtkinter
+# from classes_help_window import WindowForFastSearchOrgan
+
+
+
 
 def show_two_value_in_cycle(arg1, arg2):
     for vfr, bgt in zip(arg1, arg2):
@@ -62,6 +66,18 @@ class CustomButton1:
                                                      width=150, corner_radius=11, fg_color="white", text_color="black",
                                                      border_color="black", hover_color="green", command=button_event)
         self.custom_button.grid(row=arg_row, column=arg_column, padx=arg_padx, pady=arg_pady)
+
+
+class TileWithNameModule(customtkinter.CTkFrame):
+    def __init__(self,
+                 master: any,
+                 name_for_tile: str
+                 ):
+        super().__init__(master=master, fg_color="#F7BE81")
+        self.text_label = customtkinter.CTkLabel(self, text=name_for_tile, text_color="#585858",
+                                                 font=("Arial Black", 16))
+        self.text_label.grid(row=0, column=0, padx=300, pady=(5,5))
+
 
 
 
