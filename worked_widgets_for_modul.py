@@ -2,6 +2,7 @@ import customtkinter
 from classes_help_window import WindowForFastSearchOrgan, WindowForFastSearch
 import tkinter
 from tkinter import messagebox
+from distribution_api import GetDataForWorkedWidgets
 
 frame_default_color = "#F5DEB3"
 
@@ -51,11 +52,16 @@ class SeriesNumberDocument(customtkinter.CTkFrame):
                  master: any):
         super().__init__(master=master, fg_color=frame_default_color)
 
+        self.object_for_get_data = GetDataForWorkedWidgets()
+        self.result_list = self.object_for_get_data.get_data(second_table="series_docx", index_element=3)
+        self.object_for_get_data.close_data_base()
+
         self.ser_lab = customtkinter.CTkLabel(self, text="Cерия")
         self.ser_lab.grid(row=0, column=0, sticky="w")
 
-        self.ser_lab_en = customtkinter.CTkComboBox(self, values=["ab", "mc"], width=58)
+        self.ser_lab_en = customtkinter.CTkComboBox(self, values=self.result_list[0], width=58)
         self.ser_lab_en.grid(row=1, column=0, sticky="w")
+        self.ser_lab_en.set(self.result_list[1])
 
         self.num_doc = customtkinter.CTkLabel(self, text="Номер")
         self.num_doc.grid(row=0 ,column=1, padx=3, sticky="w")
@@ -70,27 +76,39 @@ class SeriesNumberDocument(customtkinter.CTkFrame):
         self.time_reliz_day_en.grid(row=1, column=2, padx=3, sticky="w")
 
     def get_value(self):
-        data_list = []
-        data_list.append(self.ser_lab_en.get())
-        data_list.append(self.num_doc_en.get())
-        return data_list
+        var_series_docx = self.ser_lab_en.get()
+        var_number_docx = self.num_doc_en.get()
+
+        res_str = self.time_reliz_day_en.get()
+        result_data = res_str[:2] + "." + res_str[2:4] + "." + res_str[4::]
+
+        return [var_series_docx, var_number_docx, result_data]
 
     def clean_en(self):
         self.num_doc_en.delete(first_index=0, last_index=15)
+        self.time_reliz_day_en.delete(first_index=0, last_index=15)
+
 
 
 class PersonalNumberDocument(customtkinter.CTkFrame):
     def __init__(self,
                  master: any):
         super().__init__(master=master, fg_color=frame_default_color)
+
+        self.object_for_get_data = GetDataForWorkedWidgets()
+        self.result_list = self.object_for_get_data.get_data(second_table="letters", index_element=4)
+        self.result_list_2 = self.object_for_get_data.get_data(second_table="id_citizen", index_element=5)
+        self.object_for_get_data.close_data_base()
+
         self.main_label = customtkinter.CTkLabel(self, text="Личный номер")
         self.main_label.grid(row=0, column=0, sticky="w", columnspan=2)
 
         self.entry_for_7_numbers = customtkinter.CTkEntry(self, width=70)
         self.entry_for_7_numbers.grid(row=1, column=0)
 
-        self.id_region = customtkinter.CTkComboBox(self, values=["C", "D"], width=33)
+        self.id_region = customtkinter.CTkComboBox(self, values=self.result_list[0], width=33)
         self.id_region.grid(row=1, column=1)
+        self.id_region.set(self.result_list[1])
 
         self.zero_label = customtkinter.CTkLabel(self, text="0")
         self.zero_label.grid(row=1, column=2, padx=2)
@@ -98,31 +116,41 @@ class PersonalNumberDocument(customtkinter.CTkFrame):
         self.entry_for_2_numbers = customtkinter.CTkEntry(self, width=30)
         self.entry_for_2_numbers.grid(row=1, column=3)
 
-        self.id_citizen = customtkinter.CTkComboBox(self, values=["PB", "BI"], width=65)
+        self.id_citizen = customtkinter.CTkComboBox(self, values=self.result_list_2[0], width=65)
         self.id_citizen.grid(row=1, column=4)
+        self.id_citizen.set(self.result_list_2[1])
 
         self.check_digit = customtkinter.CTkEntry(self, width=30)
         self.check_digit.grid(row=1, column=5)
+
+    def get_values(self):
+        for_7_numbers = self.entry_for_7_numbers.get()
+        letter = self.id_region.get()
+        for_2_numbers = self.entry_for_2_numbers.get()
+        pb = self.id_citizen.get()
+        last_check_number = self.check_digit.get()
+        return for_7_numbers + letter + "0" + for_2_numbers + pb + last_check_number
+
+    def clean_en(self):
+        self.entry_for_7_numbers.delete(first_index=0, last_index=15)
+        self.entry_for_2_numbers.delete(first_index=0, last_index=5)
+        self.check_digit.delete(first_index=0, last_index=5)
 
 
 class WhoGivePassport(customtkinter.CTkFrame):
     def __init__(self,
                  master: any):
         super().__init__(master=master, fg_color=frame_default_color)
+
+        self.object_for_get_data = GetDataForWorkedWidgets()
+        self.result_list = self.object_for_get_data.get_data(second_table="table_default_list_organs", index_element=6)
+
         self.name_widget = customtkinter.CTkLabel(self, text="Орган, выдавший документ")
         self.name_widget.grid(row=0, column=0, sticky="w")
 
-        self.organ_lab_en = customtkinter.CTkComboBox(self, values=['Столинский РОВД, Брестской области',
-                                                                    'Давид-Городокский ГОМ, Брестской области',
-                                                                    'Барановичский ГОВД, Брестской области',
-                                                                    'Барановичский РОВД, Брестской области',
-                                                                    'Березовский РОВД, Брестской области',
-                                                                    'Брестский РОВД, Брестской области',
-                                                                    'Ганцевичский РОВД, Брестской области',
-                                                                    'Дрогичинский РОВД, Брестской области',
-                                                                    'Жабинковский РОВД, Брестской области',
-                                                                    'Ивановский РОВД, Брестской области',], width=270)
+        self.organ_lab_en = customtkinter.CTkComboBox(self, values=self.result_list[0], width=270)
         self.organ_lab_en.grid(row=1, column=0)
+        self.organ_lab_en.set(self.result_list[1])
 
         self.button_for_fast_search_organs = customtkinter.CTkButton(self, text="📗", width=35, fg_color="green",
                                                                      command=self.open_window_for_search_organ)

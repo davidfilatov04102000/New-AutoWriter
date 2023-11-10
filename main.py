@@ -1,8 +1,10 @@
 import customtkinter
-from all_classes import ButtonReferenceMod
+from all_classes import ButtonReferenceMod, TileForWatchListWorkers
 from classes_help_window import WindowForFastSearch, WindowForSearchCase, WindowForSearchTown, CreateWorkerWindow, \
     WindowForAddNewOrgan, WindowAddNewTown, WindowForTranslateNameTown, WindowAboutThis, WindowForFastSearchOrgan
 import classes_window_modul
+from connection_with_data_base import ConnectWithDataBase
+from tkinter.messagebox import askyesno
 
 
 class App(customtkinter.CTk):
@@ -61,14 +63,16 @@ class App(customtkinter.CTk):
         self.label_where_we.grid(row=0, column=0, padx=30, pady=18)
 
         #Создание Лейбла который будет подсвечивать название нашего НП
+
+        from_table_default_info = self.take_data_about_my_address()
         self.label_my_town = customtkinter.CTkLabel(self.frame_for_job_with_town,
-                                                    text="Калинковичи",
-                                                    text_color="#1C1C1C", font=("Arial Bold", 18))
+                                                    text=from_table_default_info[0],
+                                                    text_color="#1C1C1C", font=("Arial Bold", 19))
         self.label_my_town.grid(row=0, column=1, padx=20, pady=(8, 15), sticky="nw")
 
         self.label_about_my_town = customtkinter.CTkLabel(self.frame_for_job_with_town,
-                                                    text="Гомельская обл, Калинковичский Р-н",
-                                                    text_color="#1C1C1C", font=("Arial Bold", 10))
+                                                    text=from_table_default_info[1],
+                                                    text_color="#1C1C1C", font=("Arial Bold", 11))
         self.label_about_my_town.grid(row=0, column=1, padx=10, pady=(15, 8), sticky="sw")
 
         #КНОПКИ
@@ -103,39 +107,93 @@ class App(customtkinter.CTk):
                                                       grid_pad_x=25, grid_pad_y=8, button_corner=8,
                                                       button_command=self.call_window_about_this_program)
 
+        self.create_tile_with_info_worker()
 
     def call_window_change_default_town(self):
-        window_change_town = WindowForSearchTown(name_win="Поиск населенного пункта",
+        window_change_town = WindowForSearchTown(func_change_default_address=self.change_default_address,
+                                                 name_win="Поиск населенного пункта",
                                                  name_text_field="Название населенного пункта",
                                                  text_description="Внимание, некоторые Н.П. могут иметь название на "
                                                                   "беларуском языке, будьте внимательны",
                                                  button_text="Поиск", button_text2="Вы можете корректировать название",
                                                  button_text3="Вы можете добавить населенный пункт")
-        window_change_town.mainloop()
 
     def call_window_add_new_worker(self):
-        window_add_new_worker = CreateWorkerWindow(name_win="Регистрация работника",
+        window_add_new_worker = CreateWorkerWindow(self.create_tile_with_info_worker,
+                                                   name_win="Регистрация работника",
                                                    name_one_entry="ФИО работника",
                                                    name_two_entry="id работника",
                                                    button_text="Сохранить")
-        window_add_new_worker.mainloop()
+
 
     def call_window_search_case(self):
         window_search_case = WindowForSearchCase(name_win="Поиск обращений",
                                                  name_text_field="Фамилия абонента",
                                                  button_text="Поиск")
-        window_search_case.mainloop()
+
 
     def call_window_about_this_program(self):
         window_about_this_program = WindowAboutThis(name_win="О программе")
-        window_about_this_program.mainloop()
+
 
     def open_modul_change_tariff(self):
         obj_window_for_change_window = classes_window_modul.WindowForChangeTariff()
         obj_window_for_change_window.mainloop()
 
+    def take_data_about_my_address(self):
+        connect = ConnectWithDataBase()
+        from_table_default_info = connect.get_table_from_db(name_table="table_default_info")
+        connect.close_connect()
+        text_my_town = from_table_default_info[0][2]
+        text_about_my_town = from_table_default_info[0][1] + ", " + from_table_default_info[0][0]
+        return [text_my_town, text_about_my_town]
 
 
+    def change_default_address(self):
+        connect = ConnectWithDataBase()
+        self.from_table_deafault_info = connect.get_table_from_db(name_table="table_default_info")
+        connect.close_connect()
+        self.label_my_town.configure(text=self.from_table_deafault_info[0][2])
+        self.text_about_my_town = self.from_table_deafault_info[0][1] + ", " + self.from_table_deafault_info[0][0]
+        self.label_about_my_town.configure(text=self.text_about_my_town)
+
+    def create_tile_with_info_worker(self):
+        connect = ConnectWithDataBase()
+        self.from_table_workers = connect.get_table_from_db(name_table="workers")
+        i = 0
+        for ip in self.from_table_workers:
+            i += 1
+            self.tile = TileForWatchListWorkers(master=self.frame_for_job_with_workers,
+                                                button_event=self.delete_tile_with_info_worker,
+                                                full_name=ip[2],
+                                                id_worker=ip[0])
+            self.tile.grid(row=i, column=0, padx=5, pady=4, sticky="w")
+
+    def add_new_tile_with_info_worker(self):
+        connect = ConnectWithDataBase()
+        self.from_table_workers = connect.get_table_from_db(name_table="workers")[-1]
+        connect.close_connect()
+        print(self.from_table_workers)
+        i = 0
+        for ip in self.from_table_workers:
+            i += 1
+            self.tile = TileForWatchListWorkers(master=self.frame_for_job_with_workers,
+                                                button_event=self.delete_tile_with_info_worker,
+                                                full_name=ip[2],
+                                                id_worker=ip[0])
+            self.tile.grid(row=i, column=0, padx=5, pady=4, sticky="w")
+
+    def delete_tile_with_info_worker(self, id_object, id_worker):
+        pop_up_window = askyesno(title="Удаление сотрудника",
+                                 message="Вы действительно хотите удалить этого сотрудника?")
+        if pop_up_window is True:
+            for widget in self.frame_for_job_with_workers.winfo_children():
+                if id(widget) == id_object:
+                    widget.destroy()
+            connect = ConnectWithDataBase()
+            connect.delete_string_from_table(name_table="workers", name_column="id_worker", result=id_worker)
+        else:
+            pass
 
 
 
