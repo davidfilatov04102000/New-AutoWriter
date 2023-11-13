@@ -64,6 +64,7 @@ class TileForWatchListWorkers(customtkinter.CTkFrame):
     def press_button_delete_worker(self):
         self.button_event(id(self), self.id_worker)
 
+
 class TileForShowData(customtkinter.CTkButton):
     def __init__(self,
                  master: any,
@@ -88,25 +89,39 @@ class TileForShowData(customtkinter.CTkButton):
         self.button_event(id(self), self.main_data)
 
 
-class ButtonReferenceMod:
+class ButtonReferenceMod(customtkinter.CTkButton):
     def __init__(self,
                  arg_frame: any,
                  text_button: str,
-                 string: int = 0,
                  text_size: int = 15,
                  button_len: int = 200,
-                 button_radius: int = 10,
-                 button_column: int = 0,
                  button_corner: int = 10,
                  button_text_color: str = "white",
-                 grid_pad_x: int = 10,
-                 grid_pad_y: int = 15,
                  button_command=None,
                  ):
-        self.button = customtkinter.CTkButton(arg_frame, text=text_button, font=("Arial Bold", text_size),
+        super().__init__(master=arg_frame, text=text_button, font=("Arial Bold", text_size),
                                               width=button_len, corner_radius=button_corner,
                                               command=button_command, text_color=button_text_color)
-        self.button.grid(row=string, column=button_column, padx=grid_pad_x, pady=grid_pad_y)
+
+
+class ButtonReferenceMod2(customtkinter.CTkButton):
+    def __init__(self,
+                 arg_frame: any,
+                 text_button: str,
+                 text_size: int = 15,
+                 button_len: int = 200,
+                 button_corner: int = 10,
+                 button_text_color: str = "white",
+                 button_command=None,
+                 ):
+        super().__init__(master=arg_frame, text=text_button, font=("Arial Bold", text_size),
+                         width=button_len, corner_radius=button_corner,
+                         command=self.event_press, text_color=button_text_color)
+        self.button_command = button_command
+        self.text_button = text_button
+
+    def event_press(self):
+        self.button_command(self.text_button)
 
 
 class CustomButton1:

@@ -2,6 +2,7 @@ from connection_with_data_base import ConnectWithDataBase
 from fuzzywuzzy import fuzz
 import pprint
 import time
+from tkinter.messagebox import showerror
 
 class SearchTownForDefaultInfo:
     def __init__(self, name_town):
@@ -229,12 +230,12 @@ class GetDataForWorkedWidgets:
         # operator_codes(code)
         # workers(id_worker, init_worker, full_name_worker)
         # table_default_list_organs(name_organ)
-        self.from_table_default_info = self.connected.get_table_from_db(name_table="table_default_info")
+        from_table_default_info = self.connected.get_table_from_db(name_table="table_default_info")
         self.from_any_table = self.connected.get_table_from_db(name_table=second_table)
 
 
         default_list = []
-        default_value = self.from_table_default_info[0][index_element]
+        default_value = from_table_default_info[0][index_element]
 
         for i in self.from_any_table:
             default_list.append(i[0])
@@ -256,22 +257,101 @@ class GetDataForWorkedWidgets:
             list_name_field.append(self.from_table_organs_in_fields[0][1])
             list_for_return.append(local_list)
 
-        list_with_all_organs = []
-
-        for y in list_for_return:
-            list_with_all_organs += y
-
-        return [list_name_field, list_with_all_organs, list_for_return]
-
-
+        return [list_name_field, list_for_return]
 
     def get_data_for_widget_place_logging(self):
-        pass
+        # table_default_info(field, district, town, series, letter, pb, organ)
+        # field_with_id(field, id)
+        # table_default_list_district(name_district)
+        # table_default_list_town(name_town)
+        # field_district_id(id_field, district, id)
+        # district_town_id(id_district, name_town)
+        from_table_default_info = self.connected.get_table_from_db(name_table="table_default_info")
+        from_table_field_with_id = self.connected.get_table_from_db(name_table="field_with_id")
+
+        list_default_value = []
+        for Def in range(0, 3):
+            list_default_value.append(from_table_default_info[0][Def])
+
+        full_list_field = []
+        list_district_in_field = []
+        full_list_district = []
+        full_list_town = []
+
+        for dist in from_table_field_with_id:
+            full_list_field.append(dist[0])
+            from_table_field_district_id = self.connected.search_value_by_column(name_table="field_district_id",
+                                                                                 column="id_field",
+                                                                                 identification=dist[1])
+            local_list_district = []
+            for dist_2 in from_table_field_district_id:
+                local_list_district.append(dist_2[1])
+                full_list_district.append(dist_2[1])
+                from_table_district_town_id = self.connected.search_value_by_column(name_table="district_town_id",
+                                                                                    column="id_district",
+                                                                                    identification=dist_2[2])
+                local_list_town = []
+                for town in from_table_district_town_id:
+                    local_list_town.append(town[1])
+                full_list_town.append(local_list_town)
+            list_district_in_field.append(local_list_district)
+        full_list_field.remove("Минск")
+
+        id_field = full_list_field.index(list_default_value[0])
+        id_district = full_list_district.index(list_default_value[1])
+
+        return (list_default_value, [id_field, id_district], full_list_field,
+                list_district_in_field, full_list_district, full_list_town)
+
+    def return_data_for_dates(self):
+        days_of_month = []
+
+        month_list = []
+
+        year_list = []
+
+        for i in range(1, 32):
+            if i < 10:
+                days_of_month.append("0" + str(i))
+                month_list.append("0" + str(i))
+            elif i < 13:
+                days_of_month.append(str(i))
+                month_list.append(str(i))
+            else:
+                days_of_month.append(str(i))
+
+        second = time.time()
+        today = time.localtime(second)
+        today_year = today.tm_year
+        for y in range(1990, today_year+1):
+            year_list.append(str(y))
+        year_list.reverse()
+
+        return [days_of_month, month_list, year_list]
+
+    def get_data_about_workers(self):
+        from_table_workers = self.connected.get_table_from_db(name_table="workers")
+        # workers(id_worker, init_worker, full_name_worker)
+        id_worker = []
+        name_init_worker_list = []
+        for w in from_table_workers:
+            id_worker.append(w[0])
+            local_list = [w[1], w[2]]
+            name_init_worker_list.append(local_list)
+
+        return [id_worker, name_init_worker_list]
+
+    def get_any_list(self, table):
+        self.from_table_banks = self.connected.get_table_from_db(name_table=table)
+
+        any_list = []
+
+        for y in self.from_table_banks:
+            any_list.append(y[0])
+
+        return any_list
+
 
     def close_data_base(self):
         self.connected.close_connect()
-
-
-
-
 

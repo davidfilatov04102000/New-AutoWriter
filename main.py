@@ -5,6 +5,8 @@ from classes_help_window import WindowForFastSearch, WindowForSearchCase, Window
 import classes_window_modul
 from connection_with_data_base import ConnectWithDataBase
 from tkinter.messagebox import askyesno
+import time
+
 
 
 class App(customtkinter.CTk):
@@ -78,12 +80,17 @@ class App(customtkinter.CTk):
         #КНОПКИ
 
         # Создаем кнопки ссылки на модули
-        btn1 = ButtonReferenceMod(self.frame_for_button_module, "Заявление Все свои", 1,
+        btn1 = ButtonReferenceMod(self.frame_for_button_module, "Заявление Все свои", button_corner=8, button_len=200,
                                   button_command=self.open_modul_change_tariff)
-        btn2 = ButtonReferenceMod(self.frame_for_button_module, "Подключение Твин-Карты", 2)
-        btn3 = ButtonReferenceMod(self.frame_for_button_module, "Ошибочная оплата", 3)
-        btn4 = ButtonReferenceMod(self.frame_for_button_module, "Смена владельца", 4)
-        btn5 = ButtonReferenceMod(self.frame_for_button_module, "Возврат номера", 5)
+        btn1.grid(row=1, column=0, padx=10, pady=15)
+        btn2 = ButtonReferenceMod(self.frame_for_button_module, "Подключение Твин-Карты", button_corner=8, button_len=200)
+        btn2.grid(row=2, column=0, padx=10, pady=15)
+        btn3 = ButtonReferenceMod(self.frame_for_button_module, "Ошибочная оплата", button_corner=8, button_len=200)
+        btn3.grid(row=3, column=0, padx=10, pady=15)
+        btn4 = ButtonReferenceMod(self.frame_for_button_module, "Смена владельца", button_corner=8, button_len=200)
+        btn4.grid(row=4, column=0, padx=10, pady=15)
+        btn5 = ButtonReferenceMod(self.frame_for_button_module, "Возврат номера", button_corner=8, button_len=200)
+        btn5.grid(row=5, column=0, padx=10, pady=15)
 
         #Создание кнопки для изменения конфигурации населенного пункта
         self.button_change_town = customtkinter.CTkButton(self.frame_for_job_with_town, text="Изменить",
@@ -99,13 +106,15 @@ class App(customtkinter.CTk):
 
         #Cоздание кнопок на фрейм с доп функциями
         self.button_search_case = ButtonReferenceMod(arg_frame=self.frame_for_additional_function,
-                                                     text_button="Поиск по обращениям", string=0, button_column=0,
-                                                     grid_pad_x=25, grid_pad_y=8, button_corner=8,
+                                                     text_button="Поиск по обращениям",
+                                                     button_corner=8,
                                                      button_command=self.call_window_search_case)
+        self.button_search_case.grid(row=0, column=0, padx=20, pady=10)
         self.button_how_this_use = ButtonReferenceMod(arg_frame=self.frame_for_additional_function,
-                                                      text_button="Как этим пользоваться?", string=0, button_column=1,
-                                                      grid_pad_x=25, grid_pad_y=8, button_corner=8,
+                                                      text_button="Как этим пользоваться?",
+                                                     button_corner=8,
                                                       button_command=self.call_window_about_this_program)
+        self.button_how_this_use.grid(row=0, column=1, padx=20, pady=10)
 
         self.create_tile_with_info_worker()
 
@@ -139,6 +148,7 @@ class App(customtkinter.CTk):
     def open_modul_change_tariff(self):
         obj_window_for_change_window = classes_window_modul.WindowForChangeTariff()
         obj_window_for_change_window.mainloop()
+
 
     def take_data_about_my_address(self):
         connect = ConnectWithDataBase()

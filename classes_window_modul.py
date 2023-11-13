@@ -4,6 +4,7 @@ from worked_widgets_for_modul import SimpleEntry, SeriesNumberDocument, Personal
     IdWorker, FieldForNumberSimCard, CheckBoxWithText, PlacePay, DoubleEntryForNumBankCard, TariffsWithCheckBox, \
     PlaceBirthday, InfoBar
 from all_classes import TileWithNameModule
+import time
 
 
 class ParentClassForWindowModul(customtkinter.CTk):
@@ -35,6 +36,7 @@ class ParentClassForWindowModul(customtkinter.CTk):
 
 class WindowForChangeTariff(ParentClassForWindowModul):
     def __init__(self):
+        start = time.time()
         super().__init__(name_window="Смена ТП на все свои", win_height=780)
 
         for_sticky_1 = "w"
@@ -93,3 +95,6 @@ class WindowForChangeTariff(ParentClassForWindowModul):
 
         self.info_frame = InfoBar(self.main_frame)
         self.info_frame.grid(row=10, column=0, sticky="we", padx=40, pady=20, columnspan=2)
+
+        print(time.time() - start)
+

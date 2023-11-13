@@ -31,8 +31,6 @@ from all_classes import show_three_value_in_cycle
 # table_default_list_town(name_town)
 # table_default_list_organs(name_organ)
 
-
-
 class ConnectWithDataBase:
     def __init__(self):
         self.connected = sqlite3.connect("main_data_base.db")
