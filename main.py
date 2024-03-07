@@ -2,11 +2,12 @@ import customtkinter
 from all_classes import ButtonReferenceMod, TileForWatchListWorkers
 from classes_help_window import WindowForFastSearch, WindowForSearchCase, WindowForSearchTown, CreateWorkerWindow, \
     WindowForAddNewOrgan, WindowAddNewTown, WindowForTranslateNameTown, WindowAboutThis, WindowForFastSearchOrgan
-import classes_window_modul
+from classes_window_modul import WindowForChangeTariff, WindowForAddSecondSimCard, WindowForRefundNumberLastOwner, \
+    WindowForHandlerErrorPay, WindowForRefundNumberLastOwner, WindowForChangeOwner
 from connection_with_data_base import ConnectWithDataBase
 from tkinter.messagebox import askyesno
 import time
-
+from info_from_data_base import get_data
 
 
 class App(customtkinter.CTk):
@@ -83,13 +84,17 @@ class App(customtkinter.CTk):
         btn1 = ButtonReferenceMod(self.frame_for_button_module, "Заявление Все свои", button_corner=8, button_len=200,
                                   button_command=self.open_modul_change_tariff)
         btn1.grid(row=1, column=0, padx=10, pady=15)
-        btn2 = ButtonReferenceMod(self.frame_for_button_module, "Подключение Твин-Карты", button_corner=8, button_len=200)
+        btn2 = ButtonReferenceMod(self.frame_for_button_module, "Подключение Твин-Карты", button_corner=8, button_len=200,
+                                  button_command=self.open_modul_for_include_second_sim_card)
         btn2.grid(row=2, column=0, padx=10, pady=15)
-        btn3 = ButtonReferenceMod(self.frame_for_button_module, "Ошибочная оплата", button_corner=8, button_len=200)
+        btn3 = ButtonReferenceMod(self.frame_for_button_module, "Ошибочная оплата", button_corner=8, button_len=200,
+                                  button_command=self.open_modul_for_handler_error_pay)
         btn3.grid(row=3, column=0, padx=10, pady=15)
-        btn4 = ButtonReferenceMod(self.frame_for_button_module, "Смена владельца", button_corner=8, button_len=200)
+        btn4 = ButtonReferenceMod(self.frame_for_button_module, "Смена владельца", button_corner=8, button_len=200,
+                                  button_command=self.open_modul_for_change_owner)
         btn4.grid(row=4, column=0, padx=10, pady=15)
-        btn5 = ButtonReferenceMod(self.frame_for_button_module, "Возврат номера", button_corner=8, button_len=200)
+        btn5 = ButtonReferenceMod(self.frame_for_button_module, "Возврат номера", button_corner=8, button_len=200,
+                                  button_command=self.open_modul_for_refund_number_last_Owner)
         btn5.grid(row=5, column=0, padx=10, pady=15)
 
         #Создание кнопки для изменения конфигурации населенного пункта
@@ -117,6 +122,12 @@ class App(customtkinter.CTk):
         self.button_how_this_use.grid(row=0, column=1, padx=20, pady=10)
 
         self.create_tile_with_info_worker()
+
+        get_data()
+
+        # from info_from_data_base import from_table_series_docx, from_table_letters, from_table_id_citizen, \
+        #     from_table_default_list_organs, list_data_for_dates, data_for_widget_address_logging, from_table_workers, \
+        #     from_table_banks, from_table_tariff_plan
 
     def call_window_change_default_town(self):
         window_change_town = WindowForSearchTown(func_change_default_address=self.change_default_address,
@@ -146,9 +157,24 @@ class App(customtkinter.CTk):
 
 
     def open_modul_change_tariff(self):
-        obj_window_for_change_window = classes_window_modul.WindowForChangeTariff()
-        obj_window_for_change_window.mainloop()
+        obj_pop_up_window = WindowForChangeTariff()
+        obj_pop_up_window.mainloop()
 
+    def open_modul_for_include_second_sim_card(self):
+        obj_pop_up_window = WindowForAddSecondSimCard()
+        obj_pop_up_window.mainloop()
+
+    def open_modul_for_handler_error_pay(self):
+        obj_pop_up_window = WindowForHandlerErrorPay()
+        obj_pop_up_window.mainloop()
+
+    def open_modul_for_refund_number_last_Owner(self):
+        obj_pop_up_window = WindowForRefundNumberLastOwner()
+        obj_pop_up_window.mainloop()
+
+    def open_modul_for_change_owner(self):
+        obj_pop_up_window = WindowForChangeOwner()
+        obj_pop_up_window.mainloop()
 
     def take_data_about_my_address(self):
         connect = ConnectWithDataBase()
@@ -204,9 +230,6 @@ class App(customtkinter.CTk):
             connect.delete_string_from_table(name_table="workers", name_column="id_worker", result=id_worker)
         else:
             pass
-
-
-
 
 aplication = App()
 aplication.mainloop()

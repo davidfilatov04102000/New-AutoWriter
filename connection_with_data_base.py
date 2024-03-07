@@ -3,12 +3,6 @@ import pprint
 from fuzzywuzzy import fuzz
 from all_classes import show_three_value_in_cycle
 
-# field_district(name_field, letter_region, series_passport, list_district) - table
-# district_town(district, town) - table
-# all_town(name_town) - table
-# all_organs(name_organs) - table
-# organs_field(name_field, name_organ) - table
-
 # field_with_id(field, id)
 # field_district_id(id_field, district, id)
 # district_town_id(id_district, name_town)
@@ -17,7 +11,6 @@ from all_classes import show_three_value_in_cycle
 # town_organ(name_town, name_organ)
 # town_organ_not_exists(name_town, name_organ)
 
-# organs_in_fields(id_field, name_organ)
 # organs_in_fields_2(id_field, name_field, name_organ)
 # banks(name_bank)
 # series_docx(name_series)
@@ -28,8 +21,11 @@ from all_classes import show_three_value_in_cycle
 # workers(id_worker, init_worker, full_name_worker)
 # table_default_info(field, district, town, series, letter, pb, organ)
 # table_default_list_district(name_district)
-# table_default_list_town(name_town)
-# table_default_list_organs(name_organ)
+
+# mans_names(id, name_first_case, name_second_case)
+# mans_father_names(id, name_first_case, name_second_case)
+# girls_names(id, name_first_case, name_second_case)
+# girls_father_names(id, name_first_case, name_second_case)
 
 class ConnectWithDataBase:
     def __init__(self):
@@ -39,8 +35,7 @@ class ConnectWithDataBase:
     def get_table_from_db(self,
                           name_table: str):
         self.obj_cursor.execute(f"SELECT * FROM {name_table}")
-        self.result_read_table = self.obj_cursor.fetchall()
-        return self.result_read_table
+        return self.obj_cursor.fetchall()
 
     def search_value_by_id(self,
                            name_table: str,
@@ -129,6 +124,8 @@ class Operation:
         self.result_read_5 = self.obj_cursor.fetchall()
         pprint.pprint(self.result_read_5)
         self.close_connection()
+        return self.result_read_5
+
 
     def create_table(self):
         self.connected()
@@ -146,12 +143,81 @@ class Operation:
         pass
 
     def update_value_in_table(self, new_name):
+        # girls_father_names(id, name_first_case, name_second_case)
         self.connected()
-        self.obj_cursor.execute(f"""UPDATE field_district_id SET district='{new_name}' WHERE id=?""")
+        self.obj_cursor.execute(f"""UPDATE girls_names SET name_second_case='{new_name}' 
+        WHERE name_second_case='еленe'""")
         self.conn.commit()
         self.close_connection()
         print("Все четко")
 
+
+    def rewrite_table(self):
+        # mans_names(id, name_first_case, name_second_case)
+        # mans_father_names(id, name_first_case, name_second_case)
+        # girls_names(id, name_first_case, name_second_case)
+        # girls_father_names(id, name_first_case, name_second_case)
+        # girls_names_2(id, name_first_case, name_second_case)
+        eng_alpha = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+                     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+        letter_eng = ['Е']
+        letter_rus = ["е"]
+        self.obj_connect = ConnectWithDataBase()
+        self.result_read = self.obj_connect.get_table_from_db(name_table='girls_names')
+        self.obj_connect.close_connect()
+        count_case_in_first_case = 0
+        count_case_in_second_case = 0
+        chars = []
+        list_value_in_first_case = []
+        list_value_in_second_case = []
+        for x in self.result_read:
+            list_value_in_first_case.append(x[1])
+            list_value_in_second_case.append(x[2])
+        for y in list_value_in_first_case:
+            for i in y:
+                string = ""
+                if i in letter_eng:
+                    count_case_in_first_case += 1
+                    # list_str = list(y)
+                    # index_eng_char = list_str.index(i)
+                    # list_str.pop(index_eng_char)
+                    # list_str.insert(index_eng_char, letter_rus[0])
+                    # string = "".join(list_str)
+                    # index_str_for_correct = list_value_in_first_case.index(y)
+                    # list_value_in_first_case.pop(index_str_for_correct)
+                    # list_value_in_first_case.insert(index_str_for_correct, string)
+                    # continue
+        for z in list_value_in_second_case:
+            for f in z:
+                string_2 = ""
+                if f in letter_eng:
+                    count_case_in_second_case += 1
+                    # list_str = list(z)
+                    # index_eng_char = list_str.index(f)
+                    # list_str.pop(index_eng_char)
+                    # list_str.insert(index_eng_char, letter_rus[0])
+                    # string_2 = "".join(list_str)
+                    # index_str_for_correct = list_value_in_second_case.index(z)
+                    # list_value_in_second_case.pop(index_str_for_correct)
+                    # list_value_in_second_case.insert(index_str_for_correct, string_2)
+                    # continue
+        # print(list_value_in_first_case)
+        # print(list_value_in_second_case)
+        print(count_case_in_first_case, count_case_in_second_case)
+
+        # self.connected()
+        #
+        # self.obj_cursor.execute("CREATE TABLE IF NOT EXISTS girls_father_names_2(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        #                         "name_first_case TEXT, name_second_case TEXT)")
+        #
+        # for q, w in zip(list_value_in_first_case, list_value_in_second_case):
+        #     self.obj_cursor.execute("INSERT INTO girls_father_names_2(name_first_case, name_second_case) VALUES (?,?)",
+        #                             (q, w))
+        # self.conn.commit()
+        #
+        # self.close_connection()
+
+    """метод выведет названия всех таблиц в базе данных"""
     def list_all_table_in_database(self):
         self.connected()
         sql_query = """SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"""
@@ -209,8 +275,10 @@ class Operation:
 
         self.close_connection()
 
-
-
+    def rename_table(self, name_table, new_name_table):
+        self.connected()
+        self.obj_cursor.execute(f"ALTER TABLE {name_table} RENAME TO {new_name_table}")
+        self.close_connection()
 
     def close_connection(self):
         self.obj_cursor.close()

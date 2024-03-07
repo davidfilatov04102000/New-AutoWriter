@@ -2,7 +2,6 @@ import customtkinter
 # from classes_help_window import WindowForFastSearchOrgan
 
 
-
 def show_two_value_in_cycle(arg1, arg2):
     for vfr, bgt in zip(arg1, arg2):
         print(vfr, bgt, sep="   ---   ")
@@ -11,8 +10,6 @@ def show_two_value_in_cycle(arg1, arg2):
 def show_three_value_in_cycle(arg1, arg2, arg3):
     for vfr, bgt, nhy in zip(arg1, arg2, arg3):
         print(vfr, bgt, nhy, sep="   ---   ")
-
-
 
 
 class TileWithResultSearch(customtkinter.CTkButton):
@@ -37,7 +34,8 @@ class TileWithResultSearch(customtkinter.CTkButton):
 
     def configure_fg_color(self):
         self.configure(fg_color="#5A97B6")
-        self.button_event(id(self), self.name_town, self.list_id)
+        self.button_event(id(self), [self.name_town, self.list_id])
+
 
 class TileForWatchListWorkers(customtkinter.CTkFrame):
     def __init__(self,
@@ -95,13 +93,15 @@ class ButtonReferenceMod(customtkinter.CTkButton):
                  text_button: str,
                  text_size: int = 15,
                  button_len: int = 200,
+                 button_height: int = 28,
                  button_corner: int = 10,
+                 button_color: str = "#2E9AFE",
                  button_text_color: str = "white",
                  button_command=None,
                  ):
         super().__init__(master=arg_frame, text=text_button, font=("Arial Bold", text_size),
-                                              width=button_len, corner_radius=button_corner,
-                                              command=button_command, text_color=button_text_color)
+                                              width=button_len, height=button_height, corner_radius=button_corner,
+                                              command=button_command, fg_color=button_color, text_color=button_text_color)
 
 
 class ButtonReferenceMod2(customtkinter.CTkButton):
@@ -146,9 +146,14 @@ class TileWithNameModule(customtkinter.CTkFrame):
                  name_for_tile: str
                  ):
         super().__init__(master=master, fg_color="#F7BE81")
+        adit_pad_x = 300
+        max_len = 20
+        if len(name_for_tile) > max_len:
+            how_many = len(name_for_tile) - max_len
+            adit_pad_x = adit_pad_x - (how_many * 5)
         self.text_label = customtkinter.CTkLabel(self, text=name_for_tile, text_color="#585858",
                                                  font=("Arial Black", 16))
-        self.text_label.grid(row=0, column=0, padx=300, pady=(5,5))
+        self.text_label.grid(row=0, column=0, padx=adit_pad_x, pady=(5,5))
 
 
 

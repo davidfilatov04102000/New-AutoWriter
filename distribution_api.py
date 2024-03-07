@@ -66,14 +66,6 @@ class RecordDefaultDataInTable:
     def record_default_data_in_default_table(self):
         self.obj_connect.record_in_table_default_value(self.list_def_data_for_transmit_method)
 
-        self.obj_connect.record_in_table_default_lists(name_table="table_default_list_district",
-                                                       name_column="name_district",
-                                                       DEF_list=self.default_list_district)
-
-        self.obj_connect.record_in_table_default_lists(name_table="table_default_list_town",
-                                                       name_column="name_town",
-                                                       DEF_list=self.default_list_town)
-
         self.obj_connect.record_in_table_default_lists(name_table="table_default_list_organs",
                                                        name_column="name_organ",
                                                        DEF_list=self.finally_list_organs)
@@ -161,39 +153,18 @@ class RecordDefaultDataInTable:
         self.result_checkout_exist_table = self.obj_connect.checkout_exist_table(name_table=self.name_1)
 
         if self.result_checkout_exist_table == 1:
-            print("табла есть по этому удаляем и делаем заново")
             self.obj_connect.remove_any_table(name_table="table_default_info")
             self.obj_connect.remove_any_table(name_table="table_default_list_district")
             self.obj_connect.remove_any_table(name_table="table_default_list_town")
             self.obj_connect.remove_any_table(name_table="table_default_list_organs")
 
             self.obj_connect.create_table_default_data()
-
             self.record_default_data_in_default_table()
-
-            self.obj_connect.show_table(name_table="table_default_info")
-
-            self.obj_connect.show_table(name_table="table_default_list_district")
-
-            self.obj_connect.show_table(name_table="table_default_list_town")
-
-            self.obj_connect.show_table(name_table="table_default_list_organs")
 
             return self.list_def_data_for_transmit_method[:3]
-
-
         else:
             self.obj_connect.create_table_default_data()
-
             self.record_default_data_in_default_table()
-
-            self.obj_connect.show_table(name_table="table_default_info")
-
-            self.obj_connect.show_table(name_table="table_default_list_district")
-
-            self.obj_connect.show_table(name_table="table_default_list_town")
-
-            self.obj_connect.show_table(name_table="table_default_list_organs")
 
             return self.list_def_data_for_transmit_method[:3]
 
@@ -300,8 +271,8 @@ class GetDataForWorkedWidgets:
         id_field = full_list_field.index(list_default_value[0])
         id_district = full_list_district.index(list_default_value[1])
 
-        return (list_default_value, [id_field, id_district], full_list_field,
-                list_district_in_field, full_list_district, full_list_town)
+        return [list_default_value, [id_field, id_district], full_list_field,
+                list_district_in_field, full_list_district, full_list_town]
 
     def return_data_for_dates(self):
         days_of_month = []

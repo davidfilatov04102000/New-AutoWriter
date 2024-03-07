@@ -4,6 +4,8 @@ from distribution_api import SearchTownForDefaultInfo, RecordDefaultDataInTable,
     GetDataForWorkedWidgets
 import time
 from fuzzywuzzy import fuzz
+from experience import AdditionalFunctional
+from info_from_data_base import get_data
 
 
 class ParentHelpWindow(customtkinter.CTkToplevel):
@@ -22,8 +24,6 @@ class ParentHelpWindow(customtkinter.CTkToplevel):
         self.columnconfigure(0, weight=1)
         self.rowconfigure((1, 2), weight=1)
 
-        self.var_for_logging_last_press = ()
-
         #Создание фрейма вверху окна для поля ввода и кнопки поиска
         self.frame_for_tool_bar = customtkinter.CTkFrame(self, corner_radius=0)
         self.frame_for_tool_bar.grid(row=0, column=0, padx=2, pady=0, sticky="we")
@@ -32,23 +32,72 @@ class ParentHelpWindow(customtkinter.CTkToplevel):
         self.frame_main_job_field = customtkinter.CTkScrollableFrame(self, corner_radius=0)
         self.frame_main_job_field.grid(row=1, column=0, padx=2, pady=(2,2), sticky="wsen", rowspan=3)
 
-        # self.columnconfigure((0, 1), weight=1)
 
-        self.var_for_logging_last_press = ()
+class WindowForFastSearchOrgan(customtkinter.CTkToplevel):
+    """Класс для быстрого поска органов"""
+    def __init__(self,
+                 name_win,
+                 button_event=None):
+        super().__init__()
+        self.title(name_win)
+        self.width_win = 700
+        self.height_win = 450
+        self.geometry(f"{self.width_win}x{self.height_win}")
+        self.resizable(False, False)
 
-    def hover_click_on_button(self, id_button, name_button):
-        if len(self.var_for_logging_last_press) == 0:
-            self.var_for_logging_last_press = (id_button, name_button)
+        self.button_event = button_event
 
-        elif id_button == self.var_for_logging_last_press[0]:
-            pass
+        self.columnconfigure(2, weight=1)
 
-        else:
-            for widget in self.frame_main_job_field.winfo_children():
-                if id(widget) == self.var_for_logging_last_press[0]:
-                    widget.configure(fg_color="#DCDFE1")
-                    self.var_for_logging_last_press = (id_button, name_button)
-                    break
+        from info_from_data_base import data_for_window_for_show_organs
+        self.result_list = data_for_window_for_show_organs.copy()
+
+        #Создание фрейма для кнопки выбрать сверху
+        self.frame_for_tool_bar = customtkinter.CTkFrame(self, corner_radius=0)
+        self.frame_for_tool_bar.grid(row=0, column=0, padx=0, pady=0, sticky="we", columnspan=2)
+
+        #Создание Фрейма для кнопок разделов
+        self.frame_for_navigation = customtkinter.CTkFrame(self, corner_radius=0)
+        self.frame_for_navigation.grid(row=1, column=0, padx=0, pady=1, sticky="nws")
+
+        #Создание фрейма для для основной рабочей области
+        self.frame_for_main_job_field = customtkinter.CTkScrollableFrame(self, corner_radius=0, width=388,
+                                                                         height=369, label_text=" ")
+        self.frame_for_main_job_field.grid(row=1, column=0, padx=173, pady=1, sticky="we")
+
+        self.label_for_main_job_field = customtkinter.CTkLabel(self.frame_for_main_job_field, font=("Arial Bold", 18),
+                                                               text="Выберите раздел при помощи кнопок слева")
+        self.label_for_main_job_field.grid(row=0, column=0, padx=60, pady=15)
+
+        # Создание кнопки для панели инструментов
+        self.button_ok = customtkinter.CTkButton(self.frame_for_tool_bar, text="Выбрать", width=80,
+                                                 fg_color="green", command=self.button_select, state="disabled")
+        self.button_ok.grid(row=0, column=0, padx=35, pady=10, sticky="w")
+
+        self.button_add_organ = CustomButton1(self.frame_for_tool_bar,
+                                              button_text="Вы также можете добавить учреждение",
+                                              arg_row=0, arg_column=2, arg_padx=300)
+        #Создание кнопок для навигации
+        buttons = []
+        for btn in self.result_list[0]:
+            buttons.append(ButtonReferenceMod2(arg_frame=self.frame_for_navigation, text_button=btn, button_len=150,
+                                              button_command=self.press_button_navigation))
+        for count, button in enumerate(buttons):
+            button.grid(row=count, column=0, padx=10, pady=10)
+
+        self.add_func = AdditionalFunctional(main_frame=self.frame_for_main_job_field, object_btn=self.button_ok)
+
+    def press_button_navigation(self, argument):
+        for widget in self.frame_for_main_job_field.winfo_children():
+            widget.destroy()
+        self.frame_for_main_job_field.configure(label_text=argument)
+        index_field = self.result_list[0].index(argument)
+        self.add_func.show_result(argument_list=self.result_list[1][index_field])
+
+    def button_select(self):
+        get_value = self.add_func.return_value()
+        self.button_event(get_value)
+        self.destroy()
 
 
 class WindowForFastSearch(ParentHelpWindow):
@@ -85,50 +134,19 @@ class WindowForFastSearch(ParentHelpWindow):
                                                          fg_color="green", command=self.button_search)
         self.button_for_search.grid(row=1, column=4, padx=10, pady=(5, 5))
 
+        self.add_func = AdditionalFunctional(main_frame=self.frame_main_job_field, object_btn=self.button_ok)
+
     def show_data(self):
-        if self.show_half_data == "on":
-            size_small_list = len(self.data) // 2
-            small_list = self.data[:size_small_list]
-            tiles = []
-            for name in small_list:
-                tiles.append(TileForShowData(master=self.frame_main_job_field, main_data=name,
-                                             button_event=self.hover_click_on_button))
-            for count, tile in enumerate(tiles):
-                tile.grid(row=count, column=0, padx=30, pady=9, sticky="w")
-        else:
-            tiles = []
-            for name in self.data:
-                tiles.append(TileForShowData(master=self.frame_main_job_field, main_data=name,
-                                             button_event=self.hover_click_on_button))
-            for count, tile in enumerate(tiles):
-                tile.grid(row=count, column=0, padx=30, pady=9, sticky="w")
+        self.add_func.show_result(argument_list=self.data, show_half_data=self.show_half_data)
 
     def button_search(self):
         self.value_for_search = self.entry_for_search.get()
-        result_list = []
-        for q in self.data:
-            comparison = fuzz.ratio(q, self.value_for_search)
-            if comparison > 50:
-                result_list.append(q)
-        print(result_list)
-
-        for widget in self.frame_main_job_field.winfo_children():
-            widget.destroy()
-        tiles = []
-        for name in result_list:
-            tiles.append(TileForShowData(master=self.frame_main_job_field, main_data=name,
-                                         button_event=self.hover_click_on_button))
-        for count, tile in enumerate(tiles):
-            tile.grid(row=count, column=0, padx=30, pady=9, sticky="w")
+        self.result_search = self.add_func.inline_search(data_for_search=self.data, value=self.value_for_search)
+        self.add_func.show_result(argument_list=self.result_search)
 
     def button_select(self):
-        self.button_event(value=self.var_for_logging_last_press[1])
+        self.button_event(value=self.add_func.return_value())
         self.destroy()
-
-
-
-# ert1 = WindowForFastSearch("Быстрый поиск", "выбрать")
-# ert1.mainloop()
 
 
 class WindowForSearchCase(ParentHelpWindow):
@@ -158,8 +176,6 @@ class WindowForSearchCase(ParentHelpWindow):
         get_from_entry = self.entry_for_search.get()
 
 
-var_for_logging_last_press = ()
-
 class WindowForSearchTown(WindowForSearchCase):
     """Класс для поиска населенного пункта для установки дефолтного города"""
     def __init__(self,
@@ -181,7 +197,7 @@ class WindowForSearchTown(WindowForSearchCase):
 
         #Создание фрейма для текстового описания
         self.frame_for_description = customtkinter.CTkFrame(self, corner_radius=0)
-        self.frame_for_description.grid(row=2, column=0)
+        self.frame_for_description.grid(row=4, column=0)
 
         self.label_description = customtkinter.CTkLabel(self.frame_for_description,
                                                      text=text_description, font=("Arial Bold", 12))
@@ -189,7 +205,7 @@ class WindowForSearchTown(WindowForSearchCase):
 
         #Создание фрейма для дополнительных инструментов
         self.frame_for_additional_tool = customtkinter.CTkFrame(self, corner_radius=0)
-        self.frame_for_additional_tool.grid(row=3, column=0, padx=0, pady=1, sticky="we")
+        self.frame_for_additional_tool.grid(row=5, column=0, padx=0, pady=1, sticky="we")
 
         #Создание кнопок доп инструментов
         self.button_one = CustomButton1(self.frame_for_additional_tool, button_text=button_text2,
@@ -198,6 +214,7 @@ class WindowForSearchTown(WindowForSearchCase):
         self.button_two = CustomButton1(self.frame_for_additional_tool, button_text=button_text3,
                                         arg_row=0, arg_column=1, button_event=self.call_window_add_new_town)
 
+        self.add_func = AdditionalFunctional(main_frame=self.frame_main_job_field, object_btn=self.button_ok)
 
     def call_window_fix_name_town(self):
         window_for_fix_name_town = WindowForTranslateNameTown(name_win="Корректировка названия",
@@ -225,44 +242,27 @@ class WindowForSearchTown(WindowForSearchCase):
 
         self.label_found = customtkinter.CTkLabel(self.frame_main_job_field, text="Результаты поиска:",
                                                   font=("Arial Bold", 16))
-        self.label_found.grid(row=1, column=0, padx=5, sticky="w")
+        self.label_found.grid(row=0, column=0, padx=5, sticky="w")
 
-        iu = 1
+        self.list_name_button = []
+        self.list_identificators = []
         for sl in self.list_results_search:
-            iu += 1
-            self.full_text = sl[0] + ", " + sl[1] + ", " + sl[2]
-            self.list_identifications = [sl[3], sl[4]]
-            self.tile = TileWithResultSearch(self.frame_main_job_field, self.full_text, self.list_identifications,
-                                             button_event=self.hover_click_on_button)
-            self.tile.grid(row=iu, column=0, padx=5, pady=1, sticky="we", columnspan=3)
-        global var_for_logging_last_press
-        var_for_logging_last_press = ()
+            self.list_name_button.append(sl[0] + ", " + sl[1] + ", " + sl[2])
+            self.list_identificators.append([sl[3], sl[4]])
+        self.add_func.show_result_2(name_btn=self.list_name_button, info_id=self.list_identificators)
 
-
-    def hover_click_on_button(self, id_button, name_button, list_id):
-        global var_for_logging_last_press
-        if len(var_for_logging_last_press) == 0:
-            var_for_logging_last_press = (id_button, name_button, list_id)
-
-        elif id_button == var_for_logging_last_press[0]:
-            pass
-
-        else:
-            for widget in self.frame_main_job_field.winfo_children():
-                if id(widget) == var_for_logging_last_press[0]:
-                    widget.configure(fg_color="#DCDFE1")
-                    var_for_logging_last_press = (id_button, name_button, list_id)
-                    break
-
+    #этот метод не трогать, он не повторяется
     def button_select(self):
-        self.default_address = var_for_logging_last_press[1].split(", ")
-        self.default_id = var_for_logging_last_press[2].copy()
+        var_for_logging_last_press = self.add_func.return_value()
+        self.default_address = var_for_logging_last_press[0].split(", ")
+        self.default_id = var_for_logging_last_press[1].copy()
         self.obj_handler_default_data = RecordDefaultDataInTable(self.default_address, self.default_id)
         self.obj_handler_default_data.record_into_table()
         self.func_change_default_address()
         self.destroy()
+        get_data()
 
-
+#Сюда не лезть!!!
 class CreateWorkerWindow(customtkinter.CTkToplevel):
     """Класс окна для регистрации нового сотрудника"""
     def __init__(self,
@@ -302,10 +302,6 @@ class CreateWorkerWindow(customtkinter.CTkToplevel):
         self.button_event()
         self.destroy()
 
-
-
-# ert4 = CreateWorkerWindow("Регистрация работника", "ФИО Работника", "id Работника", "готово")
-# ert4.mainloop()
 
 class WindowForAddNewOrgan(customtkinter.CTkToplevel):
     """Класс окна для добавления нового органа выдающего документы"""
@@ -347,10 +343,6 @@ class WindowForAddNewOrgan(customtkinter.CTkToplevel):
         self.button_ok.grid(row=5, column=0, padx=self.pad_x, pady=20)
 
 
-# ert5 = WindowForAddNewOrgan("Добавить новое учреждение", "Область",
-#                             "Полное название органа", "Добавить в дефолтный список", "Готово")
-# ert5.mainloop()
-
 
 class WindowAddNewTown(WindowForAddNewOrgan):
     """Класс окна для внесения в базу данных города, которого там нет"""
@@ -378,10 +370,6 @@ class WindowAddNewTown(WindowForAddNewOrgan):
 
         self.two_entry = customtkinter.CTkComboBox(self, width=250)
         self.two_entry.grid(row=1, column=0, padx=self.pad_x, pady=self.pad_y_for_en[0], sticky=self.pad_y_for_en[1])
-
-
-# ert6 = WindowAddNewTown("Новый населенный пункт", "Область", "Город", "Район", "Добавить в дефолтный список", "Готово")
-# ert6.mainloop()
 
 
 class WindowForTranslateNameTown(WindowAddNewTown):
@@ -413,7 +401,6 @@ class WindowForTranslateNameTown(WindowAddNewTown):
                                sticky=self.pad_y_for_en[1])
 
 
-
 class WindowAboutThis(customtkinter.CTk):
     def __init__(self, name_win):
         super().__init__()
@@ -431,95 +418,6 @@ class WindowAboutThis(customtkinter.CTk):
 
 
 
-var_for_logging_last_press_2 = ()
-
-class WindowForFastSearchOrgan(customtkinter.CTkToplevel):
-    """Класс для быстрого поска органов"""
-    def __init__(self,
-                 name_win,
-                 button_event=None):
-        super().__init__()
-        self.title(name_win)
-        self.width_win = 700
-        self.height_win = 450
-        self.geometry(f"{self.width_win}x{self.height_win}")
-        self.resizable(False, False)
-
-        self.button_event = button_event
-
-        self.columnconfigure(2, weight=1)
-
-        self.object_for_get_data = GetDataForWorkedWidgets()
-        self.result_list = self.object_for_get_data.data_for_window_for_show_organs()
-        self.object_for_get_data.close_data_base()
-
-
-        #Создание фрейма для кнопки выбрать сверху
-        self.frame_for_tool_bar = customtkinter.CTkFrame(self, corner_radius=0)
-        self.frame_for_tool_bar.grid(row=0, column=0, padx=0, pady=0, sticky="we", columnspan=2)
-
-        #Создание Фрейма для кнопок разделов
-        self.frame_for_navigation = customtkinter.CTkFrame(self, corner_radius=0)
-        self.frame_for_navigation.grid(row=1, column=0, padx=0, pady=1, sticky="nws")
-
-        #Создание фрейма для для основной рабочей области
-        self.frame_for_main_job_field = customtkinter.CTkScrollableFrame(self, corner_radius=0, width=388,
-                                                                         height=369, label_text=" ")
-        self.frame_for_main_job_field.grid(row=1, column=0, padx=173, pady=1, sticky="we")
-
-        self.label_for_main_job_field = customtkinter.CTkLabel(self.frame_for_main_job_field, font=("Arial Bold", 18),
-                                                               text="Выберите раздел при помощи кнопок слева")
-        self.label_for_main_job_field.grid(row=0, column=0, padx=60, pady=15)
-
-        # Создание кнопки для панели инструментов
-        self.button_ok = customtkinter.CTkButton(self.frame_for_tool_bar, text="Выбрать", width=80,
-                                                 fg_color="green", command=self.button_select)
-        self.button_ok.grid(row=0, column=0, padx=35, pady=10, sticky="w")
-
-        self.button_add_organ = CustomButton1(self.frame_for_tool_bar,
-                                              button_text="Вы также можете добавить учреждение",
-                                              arg_row=0, arg_column=2, arg_padx=300)
-        #Создание кнопок для навигации
-        buttons = []
-        for btn in self.result_list[0]:
-            buttons.append(ButtonReferenceMod2(arg_frame=self.frame_for_navigation, text_button=btn, button_len=150,
-                                              button_command=self.press_button_navigation))
-        for count, button in enumerate(buttons):
-            button.grid(row=count, column=0, padx=10, pady=10)
-        global var_for_logging_last_press_2
-        var_for_logging_last_press_2 = ()
-
-    def show_result(self, argument_list):
-        tiles = []
-        for wid in argument_list:
-            tiles.append(TileForShowData(master=self.frame_for_main_job_field,
-                                   main_data=wid, button_event=self.hover_click_on_button))
-        for count, tile in enumerate(tiles):
-            tile.grid(row=count, column=0, padx=10, pady=5, sticky="w")
-
-    def press_button_navigation(self, argument):
-        for widget in self.frame_for_main_job_field.winfo_children():
-            widget.destroy()
-        self.frame_for_main_job_field.configure(label_text=argument)
-        index_field = self.result_list[0].index(argument)
-        self.show_result(self.result_list[1][index_field])
-
-    def hover_click_on_button(self, id_button, name_button):
-        global var_for_logging_last_press_2
-        if len(var_for_logging_last_press_2) == 0:
-            var_for_logging_last_press_2 = (id_button, name_button)
-        elif id_button == var_for_logging_last_press_2[0]:
-            pass
-        else:
-            for widget in self.frame_for_main_job_field.winfo_children():
-                if id(widget) == var_for_logging_last_press_2[0]:
-                    widget.configure(fg_color="#DCDFE1")
-                    var_for_logging_last_press_2 = (id_button, name_button)
-                    break
-
-    def button_select(self):
-        self.button_event(var_for_logging_last_press_2[1])
-        self.destroy()
 
 
 
